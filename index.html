@@ -395,6 +395,7 @@
             font-size: .8rem;
             box-shadow: 0 10px 20px rgba(255,107,107,.25);
             position: relative;
+            animation: blink 2s infinite, glow 1.5s ease-in-out infinite alternate;
         }
 
         .speech:after {
@@ -422,6 +423,130 @@
         @keyframes bob {
             0%,100%{transform:translateY(0)}
             50%{transform:translateY(-6px)}
+        }
+
+        /* NEW ANIMATIONS FOR PROMOTION */
+        @keyframes blink {
+            0%, 50% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            25%, 75% {
+                opacity: 0.7;
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes glow {
+            from {
+                box-shadow: 0 10px 20px rgba(255,107,107,.25),
+                           0 0 10px rgba(255,107,107,.5);
+            }
+            to {
+                box-shadow: 0 10px 20px rgba(255,107,107,.25),
+                           0 0 20px rgba(255,107,107,.8),
+                           0 0 30px rgba(255,107,107,.6);
+            }
+        }
+
+        @keyframes pulse-glow {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 15px rgba(255, 107, 107, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 107, 107, 0);
+            }
+        }
+
+        @keyframes flash {
+            0%, 50%, 100% {
+                opacity: 1;
+            }
+            25%, 75% {
+                opacity: 0.3;
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+            20%, 40%, 60%, 80% { transform: translateX(2px); }
+        }
+
+        .promo-avatar {
+            background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            position: relative;
+            animation: flash 2s infinite, shake 3s ease-in-out infinite;
+        }
+
+        .promo-avatar::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e, #ffd700, #ff6b6b);
+            background-size: 400% 400%;
+            animation: gradientShift 3s ease infinite;
+            z-index: -1;
+        }
+
+        .promo-avatar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 50%;
+            animation: pulse-glow 2s infinite;
+        }
+
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #fff;
+            border-radius: 50%;
+            animation: sparkle 2s linear infinite;
+        }
+
+        @keyframes sparkle {
+            0% {
+                transform: translate(0, 0) scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: translate(var(--tx), var(--ty)) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(0);
+                opacity: 0;
+            }
         }
 
         .glass {
@@ -630,17 +755,6 @@
         .promo-indicator.active {
             background: #ff6b6b;
         }
-
-        /* === PROMOTION FLOATING BADGE STYLES === */
-        .promo-avatar {
-            background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 14px;
-        }
     </style>
 </head>
 <body style="margin:0;font-family:Poppins,Arial,sans-serif;background:#f7f7f7;color:#1a2b4c;">
@@ -731,7 +845,7 @@
     <!-- Year End Sale Floating Badge - Positioned above business card -->
     <div id="promo-float-badge" class="promo-float-badge">
         <div class="promo-speech">Year End Sale Promotion</div>
-        <button class="relative w-14 h-14 rounded-full ring-4 ring-white shadow-lg overflow-hidden focus:outline-none focus:ring-4 focus:ring-red-300 promo-avatar" aria-label="Buka promosi">
+        <button class="relative w-14 h-14 rounded-full ring-4 ring-white shadow-lg overflow-hidden focus:outline-none focus:ring-4 focus:ring-red-300 promo-avatar" aria-label="Buka promosi" id="promo-button">
             <span>SALE</span>
             <span class="absolute inset-0 rounded-full animate-ping bg-red-500/25"></span>
         </button>
@@ -880,6 +994,38 @@
         }
         
         updateCalendar();
+
+        // --- SPARKLE ANIMATION FOR PROMOTION ---
+        function createSparkles() {
+            const promoButton = document.getElementById('promo-button');
+            if (!promoButton) return;
+
+            // Remove existing sparkles
+            const existingSparkles = promoButton.querySelectorAll('.sparkle');
+            existingSparkles.forEach(sparkle => sparkle.remove());
+
+            // Create new sparkles
+            for (let i = 0; i < 8; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.classList.add('sparkle');
+                
+                const angle = (i / 8) * Math.PI * 2;
+                const distance = 25;
+                const tx = Math.cos(angle) * distance;
+                const ty = Math.sin(angle) * distance;
+                
+                sparkle.style.setProperty('--tx', `${tx}px`);
+                sparkle.style.setProperty('--ty', `${ty}px`);
+                sparkle.style.animationDelay = `${i * 0.25}s`;
+                
+                promoButton.appendChild(sparkle);
+            }
+        }
+
+        // Initialize sparkles
+        createSparkles();
+        // Refresh sparkles every 5 seconds
+        setInterval(createSparkles, 5000);
 
         // --- PROMOTION MODAL FUNCTIONALITY ---
         const promoFloatBadge = document.getElementById('promo-float-badge');

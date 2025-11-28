@@ -914,6 +914,16 @@
     </div>
     
     <script>
+        // --- HELPER FOR MALAYSIA TIME (GMT+8) ---
+        function getMalaysiaDate() {
+            const d = new Date();
+            // Get UTC time in ms
+            const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+            // Add 8 hours for Malaysia (8 * 60 * 60 * 1000 = 28800000)
+            const malaysiaTime = new Date(utc + 28800000);
+            return malaysiaTime;
+        }
+
         // --- ANALOG CLOCK SCRIPT ---
         const hourHand = document.querySelector('[data-hour-hand]');
         const minuteHand = document.querySelector('[data-minute-hand]');
@@ -921,7 +931,9 @@
         const marksContainer = document.getElementById('clockMarks');
 
         function setClock() {
-            const currentDate = new Date();
+            // UPDATED: Gunakan helper function untuk dapatkan masa Malaysia
+            const currentDate = getMalaysiaDate(); 
+            
             const seconds = currentDate.getSeconds();
             const milliseconds = currentDate.getMilliseconds();
             const minutes = currentDate.getMinutes();
@@ -982,7 +994,9 @@
         ];
         
         function updateCalendar() {
-            const currentDate = new Date();
+            // UPDATED: Gunakan helper function untuk dapatkan masa Malaysia
+            const currentDate = getMalaysiaDate(); 
+            
             const day = currentDate.getDate();
             const month = currentDate.getMonth();
             
@@ -990,7 +1004,9 @@
             document.getElementById('calendar-month').textContent = monthNames[month];
         }
         
+        // Update calendar immediately and then check periodically (e.g. every minute)
         updateCalendar();
+        setInterval(updateCalendar, 60000);
 
         // --- SPARKLE ANIMATION FOR PROMOTION ---
         function createSparkles() {
